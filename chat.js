@@ -5,6 +5,7 @@ const cron       = require('cron');
 
 const screenshot = require('./screenshot');
 const config     = require('./config');
+const utils      = require('./utils');
 
 const teams = [];
 
@@ -188,7 +189,7 @@ module.exports = (controller) => {
                                     report.team, report.channel, report.time, report.name, report.url
                                 ];
                                 const fileUrl = url.substring(1, url.length-1).replace(/&amp;/g, "&");
-                                util.sendScreenshot(team, channel, fileUrl, name);
+                                utils.sendScreenshot(team, channel, fileUrl, name);
                                 bot.reply(message, `I will send report ${name} to channel ${channel}, wait a sec...`);
                             }
                         }
