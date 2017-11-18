@@ -64,8 +64,8 @@ router.get('/', async (req, res) => {
     const filename = `${crypto.createHash('md5').update(req.url).digest("hex")}.png`;
 
     // Send link to file
-    const link = `/screenshot/${filename}`;
-    res.render('screenshot', { link });
+    const link = `${filename}`;
+    res.render(__dirname + '/views/screenshot', { link });
 
     // Create /temp folder
     if (!fs.existsSync(temp_dir)) fs.mkdirSync(temp_dir);
@@ -77,15 +77,20 @@ router.get('/', async (req, res) => {
     if (fs.existsSync(filepath) || fs.existsSync(filetemp)) return;
     fs.writeFileSync(filetemp, 'temp');
 
+    let buffer = null;
     try {
-        const buffer = await getScreenShot(url, clip, timeout);
+        buffer = await getScreenShot(url, clip, timeout);
+    } catch (e) {
+        console.log(e);
     } finally {
         fs.unlinkSync(filetemp);
     }
 
-    fs.writeFile(filepath, buffer, (err) => {
-        if (err) console.log(`Error while writing file for url ${url}`, err);
-    });
+    if (buffer) {
+	    fs.writeFile(filepath, buffer, (err) => {
+		if (err) console.log(`Error while writing file for url ${url}`, err);
+	    });
+    }
 });
 
 
@@ -93,7 +98,7 @@ router.get('/:filename', async (req, res) => {
     const filename = req.params.filename;
     const filepath = path.resolve(temp_dir, filename);
     if (fs.existsSync(filepath)) res.sendFile(filepath);
-    else res.sendFile(path.resolve('spin.gif'));
+    else res.sendFile(path.resolve(__dirname + '/spin.gif'));
 });
 
 
