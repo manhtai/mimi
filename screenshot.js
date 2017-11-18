@@ -132,4 +132,5 @@ const ssJob = (controller) => {
 module.exports = {
     router,
     ssJob,
+    sendScreenshot,
 };
