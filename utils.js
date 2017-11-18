@@ -30,3 +30,8 @@ const postImageToChannel = (team, channel, buffer, name) => {
       console.log(body);
     });
 };
+
+
+module.exports = {
+    postImageToChannel,
+};
