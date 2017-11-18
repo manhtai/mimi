@@ -196,7 +196,7 @@ module.exports = (controller) => {
                     break;
 
                 default:
-                    bot.reply(message, 'Use `report add`, `report list`, `report delete` to change report list. And `report refresh` to refresh the list.');
+                    bot.reply(message, 'Use `report list` to view full list, `report add`, `report delete` to change the list, `report upload` to manually upload report. And `report refresh` to refresh the list.');
             }
     });
 
