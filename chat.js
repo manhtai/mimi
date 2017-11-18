@@ -130,12 +130,10 @@ module.exports = (controller) => {
 
                 case 'mod':
                     controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
-                        if (message.user === config.BOT_BOSS) {
-                            reports.mod = args;
-                            controller.storage.teams.save(reports, (err) => {
-                                if (!err) bot.reply(message, "Update mod success!");
-                            });
-                        }
+                        reports.mod = args;
+                        controller.storage.teams.save(reports, (err) => {
+                            if (!err) bot.reply(message, "Update mod success!");
+                        });
                     });
                     break;
 
@@ -157,7 +155,6 @@ module.exports = (controller) => {
                             .map((l, idx) => ({ ...l, idx }))
                             .filter((l, idx) => idx == id - 1)
                             .filter(l => l.owner === message.user ||
-                                message.user === config.BOT_BOSS ||
                                 reports.mod && reports.mod.indexOf(message.user) > -1
                             )
                             .map(l => l.idx);
