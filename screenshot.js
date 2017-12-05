@@ -14,17 +14,14 @@ const router = express.Router();
 
 
 // Misc function for taking screenshot
-const getScreenShot = async(url, clip, timeout = 1000) => {
+const getScreenShot = async(url, clip, timeout, width, height) => {
   console.log("Start getting screenshot...", url, clip, timeout);
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
 
-  page.setViewport({
-    width: 2048,
-    height: 1536
-  });
+  page.setViewport({ width, height });
   await page.goto(url);
   await page.waitFor(timeout);
   const buffer = await page.screenshot({
@@ -43,12 +40,14 @@ const sendScreenshot = async(team, channel, url, name) => {
     x: parseInt(params.x),
     y: parseInt(params.y),
     width: parseInt(params.w),
-    height: parseInt(params.h)
+    height: parseInt(params.h),
   };
-  let timeout = params.t || 1000;
-  timeout = parseInt(timeout);
 
-  const buffer = await getScreenShot(params.url, clip, timeout);
+  const timeout = parseInt(params.t || 1000);
+  const width = parseInt(params.width || 2048);
+  const height = parseInt(params.width || 1536);
+
+  const buffer = await getScreenShot(params.url, clip, timeout, width, height);
   utils.postImageToChannel(team, channel, buffer, name);
 };
 
