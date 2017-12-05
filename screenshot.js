@@ -21,7 +21,7 @@ const getScreenShot = async(url, clip, timeout, width, height) => {
   });
   const page = await browser.newPage();
 
-  page.setViewport({ width, height });
+  page.setViewport({ width: width, height: height });
   await page.goto(url);
   await page.waitFor(timeout);
   const buffer = await page.screenshot({
