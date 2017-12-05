@@ -56,8 +56,8 @@ const sendScreenshot = async(team, channel, url, name) => {
 router.get('/', async (req, res) => {
     const url = req.query.url;
     const timeout = parseInt(req.query.t || 1000);
-    const xywh = [req.query.x, req.query.y, req.query.w, req.query.h];
-    const [x, y, width, height] = xywh.map(i => !isNaN(i) ? parseInt(i): 0);
+    const xywh = [req.query.x, req.query.y, req.query.w, req.query.h, req.query.width, req.query.height];
+    const [x, y, width, height, width_, height_] = xywh.map(i => !isNaN(i) ? parseInt(i): 0);
     const clip = { x, y, width, height };
 
     const filename = `${crypto.createHash('md5').update(req.url).digest("hex")}.png`;
@@ -78,7 +78,7 @@ router.get('/', async (req, res) => {
 
     let buffer = null;
     try {
-        buffer = await getScreenShot(url, clip, timeout);
+        buffer = await getScreenShot(url, clip, timeout, width_, height_);
     } catch (e) {
         console.log(e);
     } finally {
