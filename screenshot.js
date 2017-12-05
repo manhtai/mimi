@@ -45,7 +45,7 @@ const sendScreenshot = async(team, channel, url, name) => {
 
   const timeout = parseInt(params.t || 1000);
   const width = parseInt(params.width || 2048);
-  const height = parseInt(params.width || 1536);
+  const height = parseInt(params.height || 1536);
 
   const buffer = await getScreenShot(params.url, clip, timeout, width, height);
   utils.postImageToChannel(team, channel, buffer, name);
