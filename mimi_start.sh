@@ -1,3 +1,3 @@
 #!/bin/sh
 . /home/ubuntu/mimi/.env
-node /home/ubuntu/mimi/mimi.js
+exec node /home/ubuntu/mimi/mimi.js
