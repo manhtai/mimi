@@ -26,11 +26,7 @@ bot.startRTM((err) => {
 });
 
 controller.on('rtm_close', () => {
-    bot.startRTM((err) => {
-        if (err) {
-            process.exit(1);
-        }
-    });
+    process.exit(1);
 });
 
 // Chat
