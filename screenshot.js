@@ -33,7 +33,7 @@ const getScreenShot = async(url, clip, timeout, width, height) => {
 };
 
 
-const sendScreenshot = async(team, channel, url, name) => {
+const sendScreenshot = async(team, channel, url, name, show_original) => {
   const [_, query] = url.split('?');
   const params = querystring.parse(query);
   const clip = {
@@ -48,7 +48,8 @@ const sendScreenshot = async(team, channel, url, name) => {
   const height = parseInt(params.height || 1536);
 
   const buffer = await getScreenShot(params.url, clip, timeout, width, height);
-  utils.postImageToChannel(team, channel, buffer, name);
+  const initial_comment = show_original ? params.url : null;
+  utils.postImageToChannel(team, channel, buffer, name, initial_comment);
 };
 
 
@@ -114,14 +115,14 @@ const ssJob = (controller) => {
   controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
     if (!err) {
       reports && reports.list && reports.list.map((report) => {
-        const [team, channel, time, name, url] = [
-          report.team, report.channel, report.time, report.name, report.url
+        const [team, channel, time, name, url, show_original] = [
+          report.team, report.channel, report.time, report.name, report.url, report.show_original
         ];
         const fileUrl = url.substring(1, url.length-1).replace(/&amp;/g, "&");
         const myJob = new cron.CronJob({
           cronTime: time,
           onTick: () => {
-            sendScreenshot(team, channel, fileUrl, name);
+            sendScreenshot(team, channel, fileUrl, name, show_original);
           },
           start: true,
           timeZone: config.TIME_ZONE

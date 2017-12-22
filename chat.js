@@ -20,16 +20,17 @@ module.exports = (controller) => {
         'direct_message,direct_mention,mention,message_received',
         (bot, message) => {
             const askForReport = (response, convo) => {
-                convo.ask(`Add new report following this format: \`{team} | {channel} | {time} | {name} | {url}\`. I only support team ${teams.join(' & ')} for now.`, (response, convo) => {
+                convo.ask(`Add new report following this format: \`{team} | {channel} | {time} | {name} | {url} | {yes|no}\`. I only support team ${teams.join(' & ')} for now.`, (response, convo) => {
 
-                    if (response.text.split('|').length !== 5) {
+                    if (response.text.split('|').length !== 6) {
                         bot.reply(message, `Please look at the format above again!`);
                         convo.stop();
                         return;
                     }
-                    const [team, channel, time, name, url] = response.text.split('|').map(
+                    const [team, channel, time, name, url, show_original] = response.text.split('|').map(
                         t => t.trim()
                     );
+                    const show = show_original === 'yes' ? '' : 'not ';
 
                     if (!(team.toLowerCase() in config.SLACK_API_TOKEN)) {
                         bot.reply(message, `I told you I only support ${teams.join(' & ')}!`);
@@ -45,7 +46,7 @@ module.exports = (controller) => {
                         return;
                     }
 
-                    convo.ask(`So you want to send *${name}* report \`${url}\` to channel *#${channel}* of team *${team}* at ${prettyCron.toString(time)}?`, [
+                    convo.ask(`So you want to send *${name}* report \`${url}\` to channel *#${channel}* of team *${team}* at ${prettyCron.toString(time)}, and *${show}show* original url?`, [
                         {
                             pattern: bot.utterances.yes,
                             callback: (response, convo) => {
@@ -86,11 +87,12 @@ module.exports = (controller) => {
                                 };
                             }
                             const content = convo.extractResponse('content');
-                            const [team, channel, time, name, url] = content
+                            const [team, channel, time, name, url, show_original] = content
                                 .split('|')
                                 .map(t => t.trim());
                             reports.list.push({
                                 team, channel, time, name, url, content,
+                                show_original: show_original === 'yes',
                                 owner: message.user
                             });
                             controller.storage.teams.save(reports, (err) => {
@@ -181,11 +183,11 @@ module.exports = (controller) => {
                         if (!err) {
                             const report = reports.list.filter((r, idx) => idx == id - 1)[0];
                             if (report) {
-                                const [team, channel, time, name, url] = [
-                                    report.team, report.channel, report.time, report.name, report.url
+                                const [team, channel, time, name, url, show_original] = [
+                                    report.team, report.channel, report.time, report.name, report.url, report.show_original
                                 ];
                                 const fileUrl = url.substring(1, url.length-1).replace(/&amp;/g, "&");
-                                screenshot.sendScreenshot(team, channel, fileUrl, name);
+                                screenshot.sendScreenshot(team, channel, fileUrl, name, show_original);
                                 bot.reply(message, `I will send report ${name} to channel ${channel}, wait a sec...`);
                             }
                         }

@@ -6,7 +6,7 @@ const moment  = require('moment-timezone');
 const config = require('./config');
 
 
-const postImageToChannel = (team, channel, buffer, name) => {
+const postImageToChannel = (team, channel, buffer, name, initial_comment) => {
   const imageUpload = "https://slack.com/api/files.upload";
   const token = config.SLACK_API_TOKEN[team.toLowerCase()];
   const fileName = `${name} ${moment().tz(config.TIME_ZONE).format("D-M-YYYY_HH.mm")} report.png`;
@@ -23,6 +23,7 @@ const postImageToChannel = (team, channel, buffer, name) => {
           }
         },
         filename: fileName,
+        initial_comment: initial_comment,
         channels: channel
       },
     },
