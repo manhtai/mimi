@@ -379,7 +379,7 @@ module.exports = (controller) => {
                     break;
 
                 default:
-                    bot.reply(message, 'Use `alert list` to view full list, `alert add`, `alert delete` to change the list, `alert send 7` to manually get send #7. And `alert refresh` to refresh the list.');
+                    bot.reply(message, 'Use `alert list` to view full list, `alert add`, `alert delete` to change the list, `alert send 7` to manually send alert #7. And `alert refresh` to refresh the list.');
             }
     });
 
