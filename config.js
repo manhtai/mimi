@@ -20,6 +20,10 @@ process.env.SLACK_API_TOKEN && process.env.SLACK_API_TOKEN.split('|').map(
 
 const REPORT_ID = 'REPORT';
 
+const METABASE_URL = process.env.METABASE_URL;
+const METABASE_USERNAME = process.env.METABASE_USERNAME;
+const METABASE_PASSWORD = process.env.METABASE_PASSWORD;
+
 
 module.exports = {
     TIME_ZONE,
@@ -29,4 +33,7 @@ module.exports = {
     MONGOSTORAGE,
     SLACK_API_TOKEN,
     REPORT_ID,
+    METABASE_URL,
+    METABASE_USERNAME,
+    METABASE_PASSWORD
 };

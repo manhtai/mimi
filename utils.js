@@ -38,6 +38,27 @@ const postImageToChannel = (team, channel, buffer, name, initial_comment) => {
 };
 
 
+const postMessageToChannel = (team, channel, message) => {
+    const postMessageAPI = "https://slack.com/api/chat.postMessage";
+    const token = config.SLACK_API_TOKEN[team.toLowerCase()];
+    console.log(`Send message ${message} to ${team}:${channel}`);
+    request.post({
+        url: postMessageAPI,
+        formData: {
+            username: config.SLACK_NAME,
+            icon_url: "https://vicare.vn/static/img/default-staff.png",
+            token: token,
+            text: message,
+            channel: channel
+        },
+      },
+      (error, response, body) => {
+          console.log(body);
+    });
+};
+
+
 module.exports = {
     postImageToChannel,
+    postMessageToChannel
 };

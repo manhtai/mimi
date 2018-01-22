@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 
 const config     = require('./config');
 const screenshot = require('./screenshot');
+const metabase   = require('./metabase');
 
 
 const controller = Botkit.slackbot({
@@ -31,8 +32,12 @@ controller.on('rtm_close', () => {
 
 // Chat
 require('./chat')(controller);
+
 // Screenshot CronJob
 screenshot.ssJob(controller);
+
+// Metabase CronJob
+metabase.alertJob(controller);
 
 // Setup server
 var static_dir =  __dirname + '/public';
