@@ -92,7 +92,7 @@ const alertJob = (controller) => {
           start: true,
           timeZone: config.TIME_ZONE
         });
-        controller.reports.push(myJob);
+        controller.alerts.push(myJob);
       });
     }
   });
