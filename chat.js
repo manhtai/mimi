@@ -213,7 +213,7 @@ module.exports = (controller) => {
                         convo.stop();
                         return;
                     }
-                    const [team, channel, time, name, url, template] = response.text.split('|').map(
+                    const [team, channel, time, name, url, tmp] = response.text.split('|').map(
                         t => t.trim()
                     );
 
@@ -231,8 +231,8 @@ module.exports = (controller) => {
                         return;
                     }
 
-                    const tmp = template.replace('&lt;', '<').replace('&gt;', '>');
-                    const msg = tmp.replace('{count}', 7);
+                    const template = tmp.replace('&lt;', '<').replace('&gt;', '>');
+                    const msg = template.replace('{count}', 7);
 
                     convo.ask(`So you want to send *${name}* alert of question \`${url}\` to channel *#${channel}* of team *${team}* at ${prettyCron.toString(time)}, and the message will be like this: ${msg}?`, [
                         {
@@ -275,12 +275,12 @@ module.exports = (controller) => {
                                 };
                             }
                             const content = convo.extractResponse('content');
-                            const [team, channel, time, name, url, template] = content
+                            const [team, channel, time, name, url, tmp] = content
                                 .split('|')
                                 .map(t => t.trim());
-                            const tmp = template.replace('&lt;', '<').replace('&gt;', '>');
+                            const template = tmp.replace('&lt;', '<').replace('&gt;', '>');
                             reports.list.push({
-                                team, channel, time, name, url, content, tmp,
+                                team, channel, time, name, url, content, template,
                                 owner: message.user
                             });
                             controller.storage.teams.save(reports, (err) => {
