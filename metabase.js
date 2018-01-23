@@ -60,8 +60,14 @@ const sendAlertToChannel = async(team, channel, url, template) => {
         const resp = await getResultFromQuestion(id);
         const result = JSON.parse(resp);
         if (result && result.row_count) {
-            const message = template.replace('{count}', result.row_count);
-            const text = `${message}\nXem chi tiết tại ${url}`;
+            const limit = 10;
+            const count = result.row_count;
+            const message = template.replace('{count}', count);
+            const remain = count > limit ? 'đầy đủ' : 'chi tiết';
+            const rows = result.data.rows.slice(0, limit).map(
+                (r, i) => `${i+1}. ${r[0]}`
+            ).join('\n');
+            const text = `${message}\n${rows}\nXem ${remain} tại ${url}`;
             utils.postMessageToChannel(team, channel, text);
         }
     }
