@@ -231,8 +231,8 @@ module.exports = (controller) => {
                         return;
                     }
 
-                    const template = tmp.replace('&lt;', '<').replace('&gt;', '>');
-                    const msg = template.replace('{count}', 7);
+                    const template = tmp.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    const msg = template.replace(/{count}/g, 7);
 
                     convo.ask(`So you want to send *${name}* alert of question \`${url}\` to channel *#${channel}* of team *${team}* at ${prettyCron.toString(time)}, and the message will be like this: ${msg}?`, [
                         {
@@ -278,7 +278,7 @@ module.exports = (controller) => {
                             const [team, channel, time, name, url, tmp] = content
                                 .split('|')
                                 .map(t => t.trim());
-                            const template = tmp.replace('&lt;', '<').replace('&gt;', '>');
+                            const template = tmp.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                             reports.list.push({
                                 team, channel, time, name, url, content, template,
                                 owner: message.user
