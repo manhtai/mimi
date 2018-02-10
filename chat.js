@@ -317,7 +317,7 @@ module.exports = (controller) => {
                     controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
                         bot.reply(message, `${alerts && alerts
                                 .list
-                                .map((i, idx) => `#${idx+1}: \`${i.content}\``)
+                                .map((i, idx) => `#${idx+1}: \`\`\`${i.content}\`\`\``)
                                 .join('\n')}`);
                     });
                     break;
