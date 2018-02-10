@@ -209,11 +209,6 @@ module.exports = (controller) => {
             const askForAlert = (response, convo) => {
                 convo.ask(`Add new alert following this format: \`{team} | {channel} | {time} | {name} | {url} | {template} | {no_list}\`. I only support team ${teams.join(' & ')} for now.`, (response, convo) => {
 
-                    if (response.text.split('|').length !== 6) {
-                        bot.reply(message, `Please look at the format above again!`);
-                        convo.stop();
-                        return;
-                    }
                     const [team, channel, time, name, url, tmp, no_list] = response.text.split('|').map(
                         t => t.trim()
                     );
