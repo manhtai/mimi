@@ -2,6 +2,7 @@
 
 const prettyCron = require('prettycron');
 const cron       = require('cron');
+const safeEval   = require('safe-eval');
 
 const screenshot = require('./screenshot');
 const config     = require('./config');
@@ -206,14 +207,14 @@ module.exports = (controller) => {
         'direct_message,direct_mention,mention,message_received',
         (bot, message) => {
             const askForAlert = (response, convo) => {
-                convo.ask(`Add new alert following this format: \`{team} | {channel} | {time} | {name} | {url} | {template}\`. I only support team ${teams.join(' & ')} for now.`, (response, convo) => {
+                convo.ask(`Add new alert following this format: \`{team} | {channel} | {time} | {name} | {url} | {template} | {no_list}\`. I only support team ${teams.join(' & ')} for now.`, (response, convo) => {
 
                     if (response.text.split('|').length !== 6) {
                         bot.reply(message, `Please look at the format above again!`);
                         convo.stop();
                         return;
                     }
-                    const [team, channel, time, name, url, tmp] = response.text.split('|').map(
+                    const [team, channel, time, name, url, tmp, no_list] = response.text.split('|').map(
                         t => t.trim()
                     );
 
@@ -232,7 +233,10 @@ module.exports = (controller) => {
                     }
 
                     const template = tmp.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                    const msg = template.replace(/{count}/g, 7);
+                    const msg = safeEval(
+                        '`' + template + '`',
+                        { count: 3, rows: ['one', 'two', 'three'] }
+                    );
 
                     convo.ask(`So you want to send *${name}* alert of question \`${url}\` to channel *#${channel}* of team *${team}* at ${prettyCron.toString(time)}, and the message will be like this: ${msg}?`, [
                         {
@@ -275,12 +279,12 @@ module.exports = (controller) => {
                                 };
                             }
                             const content = convo.extractResponse('content');
-                            const [team, channel, time, name, url, tmp] = content
+                            const [team, channel, time, name, url, tmp, no_list] = content
                                 .split('|')
                                 .map(t => t.trim());
                             const template = tmp.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                             reports.list.push({
-                                team, channel, time, name, url, content, template,
+                                team, channel, time, name, url, content, template, no_list,
                                 owner: message.user
                             });
                             controller.storage.teams.save(reports, (err) => {
@@ -372,7 +376,7 @@ module.exports = (controller) => {
                             const al = alerts.list.filter((r, idx) => idx == id - 1)[0];
                             if (al) {
                                 metabase.sendAlertToChannel(
-                                    al.team, al.channel, al.url, al.template,
+                                    al.team, al.channel, al.url, al.template, al.no_list
                                 );
                                 bot.reply(message, `I will send alert ${al.name} to channel ${al.channel} if exists, wait a sec...`);
                             }

@@ -1,9 +1,11 @@
 'use strict';
 
-const request = require('request-promise-native');
-const config  = require('./config');
-const utils   = require('./utils');
-const cron    = require('cron');
+const request  = require('request-promise-native');
+const cron     = require('cron');
+const safeEval = require('safe-eval');
+
+const config   = require('./config');
+const utils    = require('./utils');
 
 
 let r = request.defaults({
@@ -53,21 +55,19 @@ const getResultFromQuestion = async(id) => {
 };
 
 
-const sendAlertToChannel = async(team, channel, url, template) => {
+const sendAlertToChannel = async(team, channel, url, template, no_list) => {
     let id = url.match(/question\/(\d+)/);
     id = id && id[1];
     if (id) {
         const resp = await getResultFromQuestion(id);
         const result = JSON.parse(resp);
         if (result && result.row_count) {
-            const limit = 10;
+            const limit = 100;
             const count = result.row_count;
-            const message = template.replace('{count}', count);
-            const remain = count > limit ? 'đầy đủ' : 'chi tiết';
-            const rows = result.data.rows.slice(0, limit).map(
-                (r, i) => `${i+1}. ${r[0]}`
-            ).join('\n');
-            const text = `${message}\n${rows}\nXem ${remain} tại ${url}`;
+            const rows = result.data.rows;
+            const message = safeEval('`' + template + '`', { count, rows });
+            const row_list = no_list ? '' : rows.map((r, i) => `${i+1}. ${r[0]}`).join('\n');
+            const text = `${message}\n${row_list}`;
             utils.postMessageToChannel(team, channel, text);
         }
     }
@@ -87,13 +87,13 @@ const alertJob = (controller) => {
   controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
     if (!err) {
       alerts && alerts.list && alerts.list.map((al) => {
-        const [team, channel, time, template, url] = [
-          al.team, al.channel, al.time, al.template, al.url,
+        const [team, channel, time, template, url, no_list] = [
+          al.team, al.channel, al.time, al.template, al.url, al.no_list
         ];
         const myJob = new cron.CronJob({
           cronTime: time,
           onTick: () => {
-            sendAlertToChannel(team, channel, url, template);
+            sendAlertToChannel(team, channel, url, template, no_list);
           },
           start: true,
           timeZone: config.TIME_ZONE
