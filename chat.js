@@ -97,6 +97,16 @@ module.exports = (controller) => {
                                 show_original: show_original === 'yes',
                                 owner: message.user
                             });
+                            // Add idx for alert list
+                            let idx = 1;
+                            for (let i in reports.list) {
+                                if (!reports.list[i].idx) {
+                                    reports.list[i].idx = idx;
+                                } else {
+                                    idx = reports.list[i].idx;
+                                }
+                                idx += 1;
+                            };
                             controller.storage.teams.save(reports, (err) => {
                                 if (!err) {
                                     bot.reply(message, 'Save success!');
@@ -127,7 +137,7 @@ module.exports = (controller) => {
                     controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
                         bot.reply(message, `${reports && reports
                                 .list
-                                .map((i, idx) => `#${idx+1}: \`${i.content}\``)
+                                .map(i => `#${i.idx}: \`${i.content}\``)
                                 .join('\n')}`);
                     });
                     break;
@@ -154,16 +164,19 @@ module.exports = (controller) => {
 
                 case 'delete':
                     controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
+                        if (!reports || !reports.list) return;
+
                         // Only owner or boss or mod can delete reports
                         const listCanDelete = reports.list
-                            .map((l, idx) => ({ ...l, idx }))
-                            .filter((l, idx) => idx == id - 1)
+                            .filter(l => l.idx == id)
                             .filter(l => l.owner === message.user ||
                                 reports.mod && reports.mod.indexOf(message.user) > -1
                             )
                             .map(l => l.idx);
 
-                        const newList = reports.list.filter((l, idx) => listCanDelete.indexOf(idx) === -1);
+                        const newList = reports.list.filter(
+                            r => listCanDelete.indexOf(r.idx) === -1
+                        );
 
                         if (newList.length !== reports.list.length) {
                             reports = {
@@ -183,7 +196,7 @@ module.exports = (controller) => {
                 case 'upload':
                     controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
                         if (!err) {
-                            const report = reports.list.filter((r, idx) => idx == id - 1)[0];
+                            const report = reports.list.filter(r => r.idx == id)[0];
                             if (report) {
                                 const [team, channel, time, name, url, show_original] = [
                                     report.team, report.channel, report.time, report.name, report.url, report.show_original
@@ -265,9 +278,9 @@ module.exports = (controller) => {
                 convo.on('end', function(convo) {
                     if (convo.status == 'completed') {
                         // Save to team data
-                        controller.storage.teams.get(config.ALERT_ID, (err, reports) => {
-                            if (!reports) {
-                                reports = {
+                        controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
+                            if (!alerts) {
+                                alerts = {
                                     id: config.ALERT_ID,
                                     list: [],
                                     mod: []
@@ -278,16 +291,26 @@ module.exports = (controller) => {
                                 .split('|')
                                 .map(t => t.trim());
                             const template = tmp.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                            reports.list.push({
+                            alerts.list.push({
                                 team, channel, time, name, url, content, template, no_list,
                                 owner: message.user
                             });
-                            controller.storage.teams.save(reports, (err) => {
+                            // Add idx for alert list
+                            let idx = 1;
+                            for (let i in alerts.list) {
+                                if (!alerts.list[i].idx) {
+                                    alerts.list[i].idx = idx;
+                                } else {
+                                    idx = alerts.list[i].idx;
+                                }
+                                idx += 1;
+                            };
+                            controller.storage.teams.save(alerts, (err) => {
                                 if (!err) {
                                     bot.reply(message, 'Save success!');
                                     metabase.alertJob(controller);
                                 } else {
-                                    bot.reply(message, "Sorry I can't save your report for now :(")
+                                    bot.reply(message, "Sorry I can't save your alert for now :(")
                                 }
                             });
                         });
@@ -312,7 +335,7 @@ module.exports = (controller) => {
                     controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
                         bot.reply(message, `${alerts && alerts
                                 .list
-                                .map((i, idx) => `#${idx+1}: \`\`\`${i.content}\`\`\``)
+                                .map(i => `#${i.idx}: \`\`\`${i.content}\`\`\``)
                                 .join('\n')}`);
                     });
                     break;
@@ -339,16 +362,17 @@ module.exports = (controller) => {
 
                 case 'delete':
                     controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
+                        if (!alerts || !alerts.list) return;
+
                         // Only owner or boss or mod can delete alerts
                         const listCanDelete = alerts.list
-                            .map((l, idx) => ({ ...l, idx }))
-                            .filter((l, idx) => idx == id - 1)
+                            .filter(l => l.idx == id)
                             .filter(l => l.owner === message.user ||
                                 alerts.mod && alerts.mod.indexOf(message.user) > -1
                             )
                             .map(l => l.idx);
 
-                        const newList = alerts.list.filter((l, idx) => listCanDelete.indexOf(idx) === -1);
+                        const newList = alerts.list.filter(l => listCanDelete.indexOf(l.idx) === -1);
 
                         if (newList.length !== alerts.list.length) {
                             alerts = {
@@ -368,7 +392,7 @@ module.exports = (controller) => {
                 case 'send':
                     controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
                         if (!err) {
-                            const al = alerts.list.filter((r, idx) => idx == id - 1)[0];
+                            const al = alerts.list.filter(a => a.idx == id)[0];
                             if (al) {
                                 metabase.sendAlertToChannel(
                                     al.team, al.channel, al.url, al.template, al.no_list
