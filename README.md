@@ -5,10 +5,10 @@ Mimi bot
 
 A slack bot that:
 
-- Take screenshots from anywhere in the net and send to specific 
-channels in a periodic time.
-- Get alerts from a [Metabase][1] API when something happens.
-- [More to come]
+- Take screenshots from anywhere in the net and send to a specific 
+channel in some periodic time.
+- Get alerts from a [Metabase][1] API when something happens, like
+sending out happy birthdays to our beloved colleagues!
 
 ## How
 
