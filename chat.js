@@ -167,25 +167,22 @@ module.exports = (controller) => {
                         if (!reports || !reports.list) return;
 
                         // Only owner or boss or mod can delete reports
-                        const listCanDelete = reports.list
+                        const toDeleteReport = reports.list
                             .filter(l => l.idx == id)
                             .filter(l => l.owner === message.user ||
                                 reports.mod && reports.mod.indexOf(message.user) > -1
-                            )
-                            .map(l => l.idx);
+                            )[0]
 
-                        const newList = reports.list.filter(
-                            r => listCanDelete.indexOf(r.idx) === -1
-                        );
-
-                        if (newList.length !== reports.list.length) {
+                        if (toDeleteReport) {
                             reports = {
                                 ...reports,
-                                list: newList
+                                list: reports.list.filter(
+                                    r => r.idx != toDeleteReport.idx
+                                )
                             };
                             controller.storage.teams.save(reports, (err) => {
                                 screenshot.ssJob(controller);
-                                bot.reply(message, `#${id} is deleted!`);
+                                bot.reply(message, `Report #${toDeleteReport.id}: *${toDeleteReport.name}* is deleted!`);
                             });
                         } else {
                             bot.reply(message, `You can't delete #${id}!`);
@@ -365,23 +362,22 @@ module.exports = (controller) => {
                         if (!alerts || !alerts.list) return;
 
                         // Only owner or boss or mod can delete alerts
-                        const listCanDelete = alerts.list
+                        const toDeleteAlert = alerts.list
                             .filter(l => l.idx == id)
                             .filter(l => l.owner === message.user ||
                                 alerts.mod && alerts.mod.indexOf(message.user) > -1
-                            )
-                            .map(l => l.idx);
+                            )[0];
 
-                        const newList = alerts.list.filter(l => listCanDelete.indexOf(l.idx) === -1);
-
-                        if (newList.length !== alerts.list.length) {
+                        if (toDeleteAlert) {
                             alerts = {
                                 ...alerts,
-                                list: newList
+                                list: alerts.list.filter(
+                                    l => l.idx != toDeleteAlert.idx
+                                )
                             };
                             controller.storage.teams.save(alerts, (err) => {
                                 metabase.alertJob(controller);
-                                bot.reply(message, `#${id} is deleted!`);
+                                bot.reply(message, `Alert #${toDeleteAlert.idx}: *${toDeleteAlert.name}* is deleted!`);
                             });
                         } else {
                             bot.reply(message, `You can't delete #${id}!`);
