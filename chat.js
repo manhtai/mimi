@@ -146,7 +146,7 @@ module.exports = (controller) => {
                     controller.storage.teams.get(config.REPORT_ID, (err, reports) => {
                         reports.mod = args;
                         controller.storage.teams.save(reports, (err) => {
-                            if (!err) bot.reply(message, "Update mod success!");
+                            if (!err) bot.reply(message, "Update mod success for " +  args.map(m => `<@${m}>`).join(', '));
                         });
                     });
                     break;
@@ -341,7 +341,7 @@ module.exports = (controller) => {
                     controller.storage.teams.get(config.ALERT_ID, (err, alerts) => {
                         alerts.mod = args;
                         controller.storage.teams.save(alerts, (err) => {
-                            if (!err) bot.reply(message, "Update mod success!");
+                            if (!err) bot.reply(message, "Update mod success for " +  args.map(m => `<@${m}>`).join(', '));
                         });
                     });
                     break;
