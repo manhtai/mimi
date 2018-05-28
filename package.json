@@ -14,7 +14,7 @@
     "moment-timezone": "^0.5.14",
     "prettycron": "^0.10.0",
     "pug": "^2.0.0-rc.4",
-    "puppeteer": "^0.13.0",
+    "puppeteer": "^1.4.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "safe-eval": "^0.3.0"
