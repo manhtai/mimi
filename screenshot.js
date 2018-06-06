@@ -7,6 +7,7 @@ const crypto      = require('crypto');
 const puppeteer   = require('puppeteer');
 const querystring = require('querystring');
 const cron        = require('cron');
+const exec        = require('child_process').exec;
 
 const utils  = require('./utils');
 const config = require('./config');
@@ -17,6 +18,9 @@ const router = express.Router();
 
 // Misc function for taking screenshot
 const getScreenShot = async(url, clip, timeout, width, height) => {
+  // Kill crhome first
+  await exec('sudo pkill chrome');
+
   console.log("Start getting screenshot...", url, clip, timeout);
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox']
