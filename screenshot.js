@@ -1,19 +1,19 @@
 'use strict';
 
-const express       = require('express');
-const fs            = require("fs");
-const path          = require("path");
-const crypto        = require('crypto');
-const puppeteer     = require('puppeteer');
-const querystring   = require('querystring');
-const cron          = require('cron');
-const child_process = require('child_process');
+const express     = require('express');
+const fs          = require("fs");
+const path        = require("path");
+const crypto      = require('crypto');
+const puppeteer   = require('puppeteer');
+const querystring = require('querystring');
+const cron        = require('cron');
 
 const utils  = require('./utils');
 const config = require('./config');
 
 const temp_dir = path.join(process.cwd(), 'temp/');
 const router = express.Router();
+
 
 // Misc function for taking screenshot
 const getScreenShot = async(url, clip, timeout, width, height) => {
@@ -29,21 +29,7 @@ const getScreenShot = async(url, clip, timeout, width, height) => {
   const buffer = await page.screenshot({
     clip
   });
-
-  // https://github.com/GoogleChrome/puppeteer/issues/1825
-  browser.on('disconnected', () => {
-    console.log('Sleeping 100ms'); //  sleep to eliminate race condition
-    setTimeout(function(){
-      console.log(`Browser Disconnected... Process Id: ${process}`);
-      child_process.exec(`kill -9 ${process}`, (error, stdout, stderr) => {
-        if (error) {
-          console.log(`Process Kill Error: ${error}`)
-        }
-        console.log(`Process Kill Success. stdout: ${stdout} stderr:${stderr}`);
-      });
-    }, 100);
-  })
-
+  await browser.close();
   console.log("End getting screenshot...");
   return buffer;
 };
