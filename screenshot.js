@@ -15,12 +15,8 @@ const config = require('./config');
 const temp_dir = path.join(process.cwd(), 'temp/');
 const router = express.Router();
 
-
 // Misc function for taking screenshot
 const getScreenShot = async(url, clip, timeout, width, height) => {
-  // Kill crhome first
-  child_process.execSync('sudo pkill chrome');
-
   console.log("Start getting screenshot...", url, clip, timeout);
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -33,7 +29,21 @@ const getScreenShot = async(url, clip, timeout, width, height) => {
   const buffer = await page.screenshot({
     clip
   });
-  await browser.close();
+
+  // https://github.com/GoogleChrome/puppeteer/issues/1825
+  browser.on('disconnected', () => {
+    console.log('Sleeping 100ms'); //  sleep to eliminate race condition
+    setTimeout(function(){
+      console.log(`Browser Disconnected... Process Id: ${process}`);
+      child_process.exec(`kill -9 ${process}`, (error, stdout, stderr) => {
+        if (error) {
+          console.log(`Process Kill Error: ${error}`)
+        }
+        console.log(`Process Kill Success. stdout: ${stdout} stderr:${stderr}`);
+      });
+    }, 100);
+  })
+
   console.log("End getting screenshot...");
   return buffer;
 };
